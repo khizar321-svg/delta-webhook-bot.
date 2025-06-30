@@ -34,7 +34,40 @@ def send_telegram_alert(message):
         print("❌ Telegram alert failed:", e)
 
 # === PLACE MARKET ORDER ===
-def place_market_order(side, entry_price):
+def place_market_order(import time
+import hashlib
+import hmac
+import base64
+import json
+
+def place_market_order(side, qty):
+    url = "https://api.delta.exchange/orders"
+    timestamp = str(int(time.time() * 1000))
+
+    payload = {
+        "product_id": 105,  # ETHUSDT
+        "size": qty,
+        "side": side,
+        "order_type": "market",
+        "leverage": LEVERAGE,
+    }
+
+    signature = hmac.new(
+        bytes(DELTA_SECRET, 'utf-8'),
+        msg=bytes(timestamp + "POST/api/v2/orders" + json.dumps(payload), 'utf-8'),
+        digestmod=hashlib.sha256
+    ).hexdigest()
+
+    headers = {
+        "api-key": DELTA_API_KEY,
+        "timestamp": timestamp,
+        "signature": signature,
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    print("Response:", response.json())
+    ):
     # Example logic only - you must implement Delta API signature etc.
     send_telegram_alert(f"\U0001F4B8 {side.upper()} Order Placed at ${entry_price:.2f}")
 
