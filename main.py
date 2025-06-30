@@ -34,15 +34,9 @@ def send_telegram_alert(message):
         print("❌ Telegram alert failed:", e)
 
 # === PLACE MARKET ORDER ===
-def place_market_order(import time
-import hashlib
-import hmac
-import base64
-import json
-
 def place_market_order(side, qty):
     url = "https://api.delta.exchange/orders"
-    timestamp = str(int(time.time() * 1000))
+    timestamp = str(int(time.time()))
 
     payload = {
         "product_id": 105,  # ETHUSDT
@@ -64,6 +58,13 @@ def place_market_order(side, qty):
         "signature": signature,
         "Content-Type": "application/json"
     }
+    try:
+        res = requests.post(url, headers=headers, json=payload)
+        print("✅ Order Placed:", res.json())
+        send_telegram_alert(f"✅ Trade executed: {side.upper()} {qty} ETH")
+    except Exception as e:
+        print("❌ Order Failed:", e)
+        send_telegram_alert(f"❌ Trade failed: {side.upper()} ETH — {str(e)}")
 
     response = requests.post(url, headers=headers, json=payload)
     print("Response:", response.json())
