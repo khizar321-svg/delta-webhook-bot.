@@ -38,6 +38,7 @@ def place_market_order(side, qty):
     url = "https://api.delta.exchange/orders"
     timestamp = str(int(time.time() * 1000))
 
+
     payload = {
         "product_id": 105,  # ETHUSDT
         "size": qty,
