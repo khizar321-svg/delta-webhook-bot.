@@ -10,12 +10,12 @@ from datetime import datetime
 app = Flask(__name__)
 
 # === TELEGRAM SETTINGS ===
-TELEGRAM_TOKEN = "7477803057:AAFxjKe53WtU6FMr2W-WcmV3baMFcBUx6WA"
+TELEGRAM_TOKEN = "7477803057:AAF...your_token_here..."
 CHAT_ID = "1848318965"
 
 # === DELTA EXCHANGE SETTINGS ===
-DELTA_API_KEY = "zAdaSnIRpprW4KQ1IRwU405d8BByNF...1"
-DELTA_SECRET = "MnFknDS39J3h2U31CrdY07T4k3TuHAqo0yNJ7hjnC4uFnWBb912DK82QyBRy... secret"
+DELTA_API_KEY = "zAdaSnIRpprW4KQ1IRwU405d8BBy..."
+DELTA_SECRET = "MnFknDS39J3h2U31CrdY07T4k3TuH..."
 BASE_URL = "https://api.delta.exchange"
 
 # === BOT SETTINGS ===
@@ -35,9 +35,8 @@ def send_telegram_alert(message):
 
 # === PLACE MARKET ORDER ===
 def place_market_order(side, qty):
-    url = "https://api.delta.exchange/orders"
-    timestamp = str(int(time.time() * 1000))  # ✅ milliseconds
-
+    url = f"{BASE_URL}/orders"
+    timestamp = str(int(time.time() * 1000))  # ✅ FIXED: Milliseconds timestamp
 
     payload = {
         "product_id": 105,  # ETHUSDT
@@ -59,39 +58,19 @@ def place_market_order(side, qty):
         "signature": signature,
         "Content-Type": "application/json"
     }
+
     try:
         res = requests.post(url, headers=headers, json=payload)
         print("✅ Order Placed:", res.json())
-        send_telegram_alert(f"✅ Trade executed: {side.upper()} {qty} ETH")
+        send_telegram_alert(f"✅ Trade executed:\n{side.upper()} {qty} ETH")
     except Exception as e:
         print("❌ Order Failed:", e)
-        send_telegram_alert(f"❌ Trade failed: {side.upper()} ETH — {str(e)}")
+        send_telegram_alert(f"❌ Trade failed:\n{side.upper()} ETH — {str(e)}")
 
-    response = requests.post(url, headers=headers, json=payload)
-    print("Response:", response.json())
-    ):
-    # Example logic only - you must implement Delta API signature etc.
-    send_telegram_alert(f"\U0001F4B8 {side.upper()} Order Placed at ${entry_price:.2f}")
-
-    # Calculate 15% TP
-    if side == "buy":
-        target_price = entry_price * (1 + TP_PERCENT)
-        sl = entry_price * 0.98  # Simulated SL 2% below
-    else:
-        target_price = entry_price * (1 - TP_PERCENT)
-        sl = entry_price * 1.02
-
-    send_telegram_alert(f"\U0001F3AF Target set at ${target_price:.2f} | Stoploss at ${sl:.2f}")
-    
-    # Simulate TP hit after 1 minute (you should use real-time price tracking)
-    time.sleep(5)
-    send_telegram_alert("\U0001F389 15% Target Hit: 80% position exited!")
-    time.sleep(5)
-    send_telegram_alert("\U0001F51A Remaining 20% exited at candle close")
-
+# === FLASK ROUTES ===
 @app.route("/", methods=["GET"])
 def home():
-    return "ETH 1H Bot Running"
+    return "ETH TH Bot Running"
 
 @app.route("/trade", methods=["POST"])
 def trade():
@@ -101,16 +80,17 @@ def trade():
     price = float(data.get("price"))
 
     if passphrase != "khizar123":
-        return {"code": 403, "message": "Invalid passphrase"}, 403
+        return {"code": 403, "message": "Invalid passphrase"}
 
     if signal == "buy":
-        place_market_order("buy", price)
+        place_market_order("buy", POSITION_SIZE)
     elif signal == "sell":
-        place_market_order("sell", price)
+        place_market_order("sell", POSITION_SIZE)
     else:
-        return {"code": 400, "message": "Invalid signal"}, 400
+        return {"code": 400, "message": "Invalid signal"}
 
     return {"code": 200, "message": "Trade executed"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+    
