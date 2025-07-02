@@ -36,7 +36,7 @@ def send_telegram_alert(message):
 # === PLACE MARKET ORDER ===
 def place_market_order(side, qty):
     url = "https://api.delta.exchange/orders"
-    timestamp = str(int(time.time() * 1000))
+    timestamp = str(int(time.time() * 1000))  # ✅ milliseconds
 
 
     payload = {
